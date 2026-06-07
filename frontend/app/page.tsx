@@ -1,42 +1,70 @@
 export default function Home() {
   return (
-    <main className="min-h-screen p-8">
-      <h1 className="text-5xl font-bold">
-        TradeVision AI
-      </h1>
+    <main className="min-h-screen bg-slate-100 p-6">
+      <div className="max-w-7xl mx-auto">
 
-      <p className="mt-4 text-lg">
-        AI-Powered Intraday Stock Prediction Platform
-      </p>
+        <h1 className="text-5xl font-bold">
+          TradeVision AI
+        </h1>
 
-      <div className="mt-10 border rounded-lg p-6">
-        <h2 className="text-2xl font-semibold">
-          Market Overview
-        </h2>
-
-        <p className="mt-2">
-          NSE • BSE • ETFs
+        <p className="mt-2 text-gray-600">
+          AI-Powered Intraday Stock Prediction Platform
         </p>
-      </div>
 
-      <div className="mt-6 border rounded-lg p-6">
-        <h2 className="text-2xl font-semibold">
-          Top Buy Signals
-        </h2>
+        <input
+          type="text"
+          placeholder="Search NSE/BSE Stock..."
+          className="w-full mt-6 p-4 rounded-lg border bg-white"
+        />
 
-        <p className="mt-2">
-          Coming Soon...
-        </p>
-      </div>
+        <div className="grid md:grid-cols-2 gap-4 mt-6">
 
-      <div className="mt-6 border rounded-lg p-6">
-        <h2 className="text-2xl font-semibold">
-          Top Sell Signals
-        </h2>
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h2 className="text-xl font-semibold">
+              NIFTY 50
+            </h2>
 
-        <p className="mt-2">
-          Coming Soon...
-        </p>
+            <p className="text-2xl font-bold mt-2">
+              +0.85%
+            </p>
+          </div>
+
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h2 className="text-xl font-semibold">
+              SENSEX
+            </h2>
+
+            <p className="text-2xl font-bold mt-2">
+              +0.92%
+            </p>
+          </div>
+
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow mt-6">
+          <h2 className="text-2xl font-bold">
+            Top Buy Signals
+          </h2>
+
+          <ul className="mt-4 space-y-2">
+            <li>RELIANCE — BUY — 87%</li>
+            <li>TCS — BUY — 84%</li>
+            <li>INFY — BUY — 82%</li>
+          </ul>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow mt-6">
+          <h2 className="text-2xl font-bold">
+            Top Sell Signals
+          </h2>
+
+          <ul className="mt-4 space-y-2">
+            <li>HDFCBANK — SELL — 78%</li>
+            <li>ITC — SELL — 75%</li>
+            <li>SBIN — SELL — 72%</li>
+          </ul>
+        </div>
+
       </div>
     </main>
   );
