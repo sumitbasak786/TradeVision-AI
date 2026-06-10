@@ -1,13 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import yfinance as yf
+import random
 
 app = FastAPI(
     title="TradeVision AI API"
 )
 
 # =========================
-# CORS
+# CORS Configuration
 # =========================
 
 app.add_middleware(
@@ -21,7 +21,7 @@ app.add_middleware(
 )
 
 # =========================
-# Home
+# Home Endpoint
 # =========================
 
 @app.get("/")
@@ -31,52 +31,62 @@ def home():
     }
 
 # =========================
-# Market Data
-# =========================
-
-@app.get("/market/{symbol}")
-def market_data(symbol: str):
-
-    ticker = yf.Ticker(f"{symbol.upper()}.NS")
-
-    info = ticker.info
-
-    return {
-        "symbol": symbol.upper(),
-        "price": round(info.get("currentPrice", 0), 2),
-        "volume": info.get("volume", 0),
-        "change_percent": round(info.get("regularMarketChangePercent", 0), 2)
-    }
-
-# =========================
-# Prediction
+# Prediction Endpoint
 # =========================
 
 @app.get("/prediction/{symbol}")
 def prediction(symbol: str):
 
-    ticker = yf.Ticker(f"{symbol.upper()}.NS")
-
-    info = ticker.info
-
-    change_percent = info.get("regularMarketChangePercent", 0)
-
-    if change_percent > 2:
-        signal = "BUY"
-        confidence = 88.0
-
-    elif change_percent < -2:
-        signal = "SELL"
-        confidence = 85.0
-
-    else:
-        signal = "HOLD"
-        confidence = 70.0
+    signals = ["BUY", "SELL", "HOLD"]
 
     return {
         "symbol": symbol.upper(),
-        "signal": signal,
-        "confidence": confidence,
-        "prediction_horizon": "5 minutes",
-        "market_change_percent": round(change_percent, 2)
+        "signal": random.choice(signals),
+        "confidence": round(random.uniform(65, 95), 2),
+        "prediction_horizon": "5 minutes"
     }
+
+# =========================
+# Market Data Endpoint
+# =========================
+
+@app.get("/market-data/{symbol}")
+def market_data(symbol: str):
+
+    return {
+        "symbol": symbol.upper(),
+        "price": round(random.uniform(2200, 2800), 2),
+        "volume": random.randint(100000, 900000),
+        "change_percent": round(random.uniform(-5, 5), 2)
+    }
+
+# =========================
+# Multi Stock Scanner
+# =========================
+
+@app.get("/scanner")
+def scanner():
+
+    stocks = [
+        "RELIANCE",
+        "TCS",
+        "INFY",
+        "HDFCBANK",
+        "ICICIBANK",
+        "SBIN",
+        "ITC",
+        "LT"
+    ]
+
+    signals = ["BUY", "SELL", "HOLD"]
+
+    results = []
+
+    for stock in stocks:
+        results.append({
+            "symbol": stock,
+            "signal": random.choice(signals),
+            "confidence": round(random.uniform(65, 95), 2)
+        })
+
+    return results

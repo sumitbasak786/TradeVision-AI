@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 export default function Home() {
   const [prediction, setPrediction] = useState<any>(null);
   const [marketData, setMarketData] = useState<any>(null);
+  const [scannerData, setScannerData] = useState<any[]>([]);
 
   useEffect(() => {
     async function loadData() {
@@ -13,17 +14,22 @@ export default function Home() {
         const predictionResponse = await fetch(
           "http://127.0.0.1:8000/prediction/reliance"
         );
-
         const predictionJson = await predictionResponse.json();
         setPrediction(predictionJson);
 
         // Market Data API
         const marketResponse = await fetch(
-          "http://127.0.0.1:8000/market/reliance"
+          "http://127.0.0.1:8000/market-data/reliance"
         );
-
         const marketJson = await marketResponse.json();
         setMarketData(marketJson);
+
+        // Scanner API
+        const scannerResponse = await fetch(
+          "http://127.0.0.1:8000/scanner"
+        );
+        const scannerJson = await scannerResponse.json();
+        setScannerData(scannerJson);
       } catch (error) {
         console.error("Error loading data:", error);
       }
@@ -41,7 +47,6 @@ export default function Home() {
       }}
     >
       <h1>TradeVision AI</h1>
-
       <p>AI-Powered Intraday Stock Prediction Platform</p>
 
       {/* Top Stats */}
@@ -87,7 +92,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Prediction Card */}
+      {/* Live Prediction */}
       <div
         style={{
           background: "#fff",
@@ -114,6 +119,7 @@ export default function Home() {
                       : prediction.signal === "SELL"
                       ? "red"
                       : "orange",
+                  fontWeight: "bold",
                 }}
               >
                 {prediction.signal}
@@ -192,7 +198,60 @@ export default function Home() {
         )}
       </div>
 
-      {/* History Table */}
+      {/* Multi Stock Scanner */}
+      <div
+        style={{
+          background: "#fff",
+          padding: "20px",
+          borderRadius: "10px",
+          marginTop: "20px",
+        }}
+      >
+        <h3>Multi-Stock Scanner</h3>
+
+        <table
+          style={{
+            width: "100%",
+            marginTop: "10px",
+          }}
+        >
+          <thead>
+            <tr>
+              <th align="left">Stock</th>
+              <th align="left">Signal</th>
+              <th align="left">Confidence</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {scannerData.map((stock) => (
+              <tr key={stock.symbol}>
+                <td>{stock.symbol}</td>
+
+                <td>
+                  <span
+                    style={{
+                      color:
+                        stock.signal === "BUY"
+                          ? "green"
+                          : stock.signal === "SELL"
+                          ? "red"
+                          : "orange",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {stock.signal}
+                  </span>
+                </td>
+
+                <td>{stock.confidence}%</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Prediction History */}
       <div
         style={{
           background: "#fff",
