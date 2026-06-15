@@ -2,14 +2,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import random
 
+from app.market_data import get_market_data
+from app.indicators import get_signal
+
 app = FastAPI(
     title="TradeVision AI API"
 )
 
-# =========================
-# CORS Configuration
-# =========================
-
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -20,9 +20,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# =========================
-# Home Endpoint
-# =========================
 
 @app.get("/")
 def home():
@@ -30,42 +27,31 @@ def home():
         "message": "TradeVision AI Backend Running"
     }
 
-# =========================
-# Prediction Endpoint
-# =========================
 
 @app.get("/prediction/{symbol}")
 def prediction(symbol: str):
 
-    signals = ["BUY", "SELL", "HOLD"]
+    signal_data = get_signal(symbol)
 
     return {
         "symbol": symbol.upper(),
-        "signal": random.choice(signals),
-        "confidence": round(random.uniform(65, 95), 2),
-        "prediction_horizon": "5 minutes"
+        "signal": signal_data["signal"],
+        "confidence": signal_data["confidence"],
+        "prediction_horizon": "5 minutes",
+        "rsi": signal_data["rsi"],
+        "ema20": signal_data["ema20"],
+        "ema50": signal_data["ema50"],
+        "trend": signal_data["trend"]
     }
 
-# =========================
-# Market Data Endpoint
-# =========================
 
-@app.get("/market-data/{symbol}")
-def market_data(symbol: str):
+@app.get("/market/{symbol}")
+def market(symbol: str):
+    return get_market_data(symbol)
 
-    return {
-        "symbol": symbol.upper(),
-        "price": round(random.uniform(2200, 2800), 2),
-        "volume": random.randint(100000, 900000),
-        "change_percent": round(random.uniform(-5, 5), 2)
-    }
 
-# =========================
-# Multi Stock Scanner
-# =========================
-
-@app.get("/scanner")
-def scanner():
+@app.get("/top-signals")
+def top_signals():
 
     stocks = [
         "RELIANCE",
@@ -78,15 +64,54 @@ def scanner():
         "LT"
     ]
 
-    signals = ["BUY", "SELL", "HOLD"]
-
     results = []
 
     for stock in stocks:
+
+        signal_data = get_signal(stock)
+
         results.append({
             "symbol": stock,
-            "signal": random.choice(signals),
-            "confidence": round(random.uniform(65, 95), 2)
+            "signal": signal_data["signal"],
+            "confidence": signal_data["confidence"]
         })
 
     return results
+
+
+@app.get("/dashboard-summary")
+def dashboard_summary():
+
+    buy_count = 0
+    sell_count = 0
+    hold_count = 0
+
+    stocks = [
+        "RELIANCE",
+        "TCS",
+        "INFY",
+        "HDFCBANK",
+        "ICICIBANK",
+        "SBIN",
+        "ITC",
+        "LT"
+    ]
+
+    for stock in stocks:
+
+        signal_data = get_signal(stock)
+
+        if signal_data["signal"] == "BUY":
+            buy_count += 1
+
+        elif signal_data["signal"] == "SELL":
+            sell_count += 1
+
+        else:
+            hold_count += 1
+
+    return {
+        "buy_signals": buy_count,
+        "sell_signals": sell_count,
+        "hold_signals": hold_count
+    }
