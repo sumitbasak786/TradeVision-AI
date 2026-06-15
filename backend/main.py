@@ -1,15 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import random
 
 from app.market_data import get_market_data
 from app.indicators import get_signal
+from app.ml_engine import generate_ai_prediction
 
 app = FastAPI(
     title="TradeVision AI API"
 )
 
-# CORS
+# CORS Configuration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -31,17 +31,33 @@ def home():
 @app.get("/prediction/{symbol}")
 def prediction(symbol: str):
 
-    signal_data = get_signal(symbol)
+    symbol_map = {
+        "reliance": "RELIANCE.NS",
+        "tcs": "TCS.NS",
+        "infy": "INFY.NS",
+        "hdfcbank": "HDFCBANK.NS",
+        "icicibank": "ICICIBANK.NS",
+        "sbin": "SBIN.NS",
+        "itc": "ITC.NS",
+        "lt": "LT.NS"
+    }
+
+    ticker = symbol_map.get(
+        symbol.lower(),
+        f"{symbol.upper()}.NS"
+    )
+
+    signal_data = get_signal(ticker)
 
     return {
         "symbol": symbol.upper(),
-        "signal": signal_data["signal"],
-        "confidence": signal_data["confidence"],
+        "signal": signal_data.get("signal", "HOLD"),
+        "confidence": signal_data.get("confidence", 50),
         "prediction_horizon": "5 minutes",
-        "rsi": signal_data["rsi"],
-        "ema20": signal_data["ema20"],
-        "ema50": signal_data["ema50"],
-        "trend": signal_data["trend"]
+        "rsi": signal_data.get("rsi", 0),
+        "ema20": signal_data.get("ema20", 0),
+        "ema50": signal_data.get("ema50", 0),
+        "trend": signal_data.get("trend", "Neutral")
     }
 
 
@@ -68,12 +84,14 @@ def top_signals():
 
     for stock in stocks:
 
-        signal_data = get_signal(stock)
+        ticker = f"{stock}.NS"
+
+        signal_data = get_signal(ticker)
 
         results.append({
             "symbol": stock,
-            "signal": signal_data["signal"],
-            "confidence": signal_data["confidence"]
+            "signal": signal_data.get("signal", "HOLD"),
+            "confidence": signal_data.get("confidence", 50)
         })
 
     return results
@@ -99,12 +117,16 @@ def dashboard_summary():
 
     for stock in stocks:
 
-        signal_data = get_signal(stock)
+        ticker = f"{stock}.NS"
 
-        if signal_data["signal"] == "BUY":
+        signal_data = get_signal(ticker)
+
+        signal = signal_data.get("signal", "HOLD")
+
+        if signal == "BUY":
             buy_count += 1
 
-        elif signal_data["signal"] == "SELL":
+        elif signal == "SELL":
             sell_count += 1
 
         else:
@@ -115,3 +137,9 @@ def dashboard_summary():
         "sell_signals": sell_count,
         "hold_signals": hold_count
     }
+
+
+@app.get("/ai-prediction/{symbol}")
+def ai_prediction(symbol: str):
+
+    return generate_ai_prediction(symbol)

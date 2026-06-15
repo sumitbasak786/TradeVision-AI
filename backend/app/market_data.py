@@ -1,6 +1,6 @@
 import random
 
-def get_stock_data(symbol: str):
+def get_market_data(symbol: str):
     return {
         "symbol": symbol.upper(),
         "price": round(random.uniform(1000, 3000), 2),
